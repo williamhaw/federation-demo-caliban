@@ -25,9 +25,9 @@ object AccountsServer extends App {
 
   def me: User = users.head
 
-  case class Queries(users: Seq[User], me: () => User)
+  case class Queries(me: () => User)
 
-  val queries: Queries = Queries(users, () => me)
+  val queries: Queries = Queries(() => me)
 
   val api = graphQL(RootResolver(queries))
 
