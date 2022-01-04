@@ -7,7 +7,8 @@ import caliban.GraphQL.graphQL
 import caliban.federation._
 import caliban.{AkkaHttpAdapter, RootResolver}
 import sttp.tapir.json.play._
-import zio.Runtime
+import zio.{Runtime, UIO}
+import zio.query.ZQuery
 
 import scala.concurrent.ExecutionContextExecutor
 
@@ -30,7 +31,9 @@ object ProductsServer extends App {
 
   val queries: Queries = Queries(args => topProducts(args))
 
-  val api = graphQL(RootResolver(queries))
+  val api = graphQL(RootResolver(queries)) @@ federated(
+    EntityResolver.from[TopArgs](args => ZQuery.fromEffect(UIO(Some(topProducts(args)))))
+  )
 
   implicit val system: ActorSystem                        = ActorSystem()
   implicit val executionContext: ExecutionContextExecutor = system.dispatcher
