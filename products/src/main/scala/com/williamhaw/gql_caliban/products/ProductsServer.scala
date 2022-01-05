@@ -26,13 +26,14 @@ object ProductsServer extends App {
   def topProducts(args: TopArgs): Seq[Product] = products.slice(0, args.first)
 
   case class TopArgs(first: Int)
+  case class ProductArgs(upc: String)
 
   case class Queries(topProducts: TopArgs => Seq[Product])
 
   val queries: Queries = Queries(args => topProducts(args))
 
   val api = graphQL(RootResolver(queries)) @@ federated(
-    EntityResolver.from[TopArgs](args => ZQuery.fromEffect(UIO(Some(topProducts(args)))))
+    EntityResolver.from[ProductArgs](args => ZQuery.fromEffect(UIO(products.find(_.upc == args.upc))))
   )
 
   implicit val system: ActorSystem                        = ActorSystem()
