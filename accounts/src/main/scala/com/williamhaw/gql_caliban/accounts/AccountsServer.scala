@@ -8,8 +8,9 @@ import caliban.federation._
 import caliban.GraphQL.graphQL
 import caliban.{AkkaHttpAdapter, RootResolver}
 import akka.http.scaladsl.server.Directives._
-import zio.Runtime
+import zio.{Runtime, UIO}
 import sttp.tapir.json.play._
+import zio.query.ZQuery
 
 import scala.concurrent.ExecutionContextExecutor
 
@@ -25,11 +26,15 @@ object AccountsServer extends App {
 
   def me: User = users.head
 
+  case class UserArgs(id: UUID)
+
   case class Queries(me: () => User)
 
   val queries: Queries = Queries(() => me)
 
-  val api = graphQL(RootResolver(queries))
+  val api = graphQL(RootResolver(queries)) @@ federated(
+    EntityResolver.from[UserArgs](args => ZQuery.fromEffect(UIO(users.find(_.id == args.id))))
+  )
 
   implicit val system: ActorSystem                        = ActorSystem()
   implicit val executionContext: ExecutionContextExecutor = system.dispatcher
