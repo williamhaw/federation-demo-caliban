@@ -17,11 +17,11 @@ import scala.concurrent.ExecutionContextExecutor
 object AccountsServer extends App {
 
   @GQLKey("id")
-  case class User(id: UUID, name: String, username: String)
+  case class User(id: UUID, name: Option[String], username: Option[String])
 
   val users = Seq(
-    User(UUID.fromString("da02636a-a240-4607-bf63-85b4f76ec6f1"), "Ada Lovelace", "@ada"),
-    User(UUID.fromString("ad8f41df-c5d2-4a46-91a7-f637f9a08060"), "Alan Turing", "@complete")
+    User(UUID.fromString("da02636a-a240-4607-bf63-85b4f76ec6f1"), Some("Ada Lovelace"), Some("@ada")),
+    User(UUID.fromString("ad8f41df-c5d2-4a46-91a7-f637f9a08060"), Some("Alan Turing"), Some("@complete"))
   )
 
   def me: User = users.head

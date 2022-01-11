@@ -15,12 +15,12 @@ import scala.concurrent.ExecutionContextExecutor
 object ProductsServer extends App {
 
   @GQLKey("upc")
-  case class Product(upc: String, name: String, price: Int, weight: Int)
+  case class Product(upc: String, name: Option[String], price: Option[Int], weight: Option[Int])
 
   val products = Seq(
-    Product("1", "Table", 899, 100),
-    Product("2", "Couch", 1299, 1000),
-    Product("3", "Chair", 54, 50)
+    Product("1", Some("Table"), Some(899), Some(100)),
+    Product("2", Some("Couch"), Some(1299), Some(1000)),
+    Product("3", Some("Chair"), Some(54), Some(50))
   )
 
   def topProducts(args: TopArgs): Seq[Product] = products.slice(0, args.first)

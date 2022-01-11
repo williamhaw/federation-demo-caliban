@@ -20,14 +20,14 @@ object InventoryServer extends App {
       @GQLExternal upc: String,
       @GQLExternal weight: Option[Int],
       @GQLExternal price: Option[Int],
-      inStock: Boolean,
+      inStock: Option[Boolean],
       @GQLRequires("price weight") shippingEstimate: Option[Int]
   )
 
   val inventory = Seq(
-    Product("1", None, None, inStock = true, None),
-    Product("2", None, None, inStock = false, None),
-    Product("3", None, None, inStock = true, None)
+    Product("1", None, None, inStock = Some(true), None),
+    Product("2", None, None, inStock = Some(false), None),
+    Product("3", None, None, inStock = Some(true), None)
   )
 
   case class ProductArgs(upc: String)
