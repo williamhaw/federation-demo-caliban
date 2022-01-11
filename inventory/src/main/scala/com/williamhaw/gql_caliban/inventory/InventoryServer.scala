@@ -31,11 +31,8 @@ object InventoryServer extends App {
   )
 
   case class ProductArgs(upc: String)
-  case class Queries()
 
-  val queries: Queries = Queries()
-
-  val api = graphQL(RootResolver(queries)) @@ federated(
+  val api = graphQL(RootResolver()) @@ federated(
     EntityResolver.from[ProductArgs](args =>
       ZQuery.fromEffect(UIO(inventory.find(_.upc == args.upc).map { i =>
         // free for expensive items
