@@ -36,6 +36,8 @@ object AccountsServer extends App {
     EntityResolver.from[UserArgs](args => ZQuery.fromEffect(UIO(users.find(_.id == args.id))))
   )
 
+  println(api.render)
+
   implicit val system: ActorSystem                        = ActorSystem()
   implicit val executionContext: ExecutionContextExecutor = system.dispatcher
   implicit val runtime: Runtime[zio.ZEnv]                 = Runtime.global

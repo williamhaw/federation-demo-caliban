@@ -48,6 +48,8 @@ object InventoryServer extends App {
     )
   )
 
+  println(api.render)
+
   implicit val system: ActorSystem                        = ActorSystem()
   implicit val executionContext: ExecutionContextExecutor = system.dispatcher
   implicit val runtime: Runtime[zio.ZEnv]                 = Runtime.global

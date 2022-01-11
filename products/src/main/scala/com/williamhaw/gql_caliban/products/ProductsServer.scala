@@ -36,6 +36,8 @@ object ProductsServer extends App {
     EntityResolver.from[ProductArgs](args => ZQuery.fromEffect(UIO(products.find(_.upc == args.upc))))
   )
 
+  println(api.render)
+
   implicit val system: ActorSystem                        = ActorSystem()
   implicit val executionContext: ExecutionContextExecutor = system.dispatcher
   implicit val runtime: Runtime[zio.ZEnv]                 = Runtime.global
