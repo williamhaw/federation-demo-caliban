@@ -25,12 +25,12 @@ object ReviewsServer extends App {
   )
 
   @GQLKey("id")
-  @GQLExternal
+  @GQLExtend
   case class User(@GQLExternal id: UUID, @GQLExternal username: Option[String] = None, reviews: Seq[Review] = Seq.empty)
 
   @GQLKey("upc")
-  @GQLExternal
-  case class Product(@GQLExtend upc: String, reviews: Seq[Review])
+  @GQLExtend
+  case class Product(@GQLExternal upc: String, reviews: Seq[Review])
 
   val users = Seq(
     User(UUID.fromString("da02636a-a240-4607-bf63-85b4f76ec6f1"), Some("@ada"), Seq.empty),
@@ -64,17 +64,20 @@ object ReviewsServer extends App {
     )
   )
 
+  def getReview(args: ReviewArgs) = reviews.find(_.id == args.id)
+
   case class ReviewArgs(id: UUID)
   case class UserArgs(authorID: UUID)
   case class ProductArgs(upc: String)
 
-  case class Queries()
+  case class Queries(review: ReviewArgs => Option[Review])
 
-  val queries: Queries = Queries()
+  val queries: Queries = Queries(args => getReview(args))
 
   val api = graphQL(RootResolver(queries)) @@ federated(
     EntityResolver.from[ReviewArgs](args => ZQuery.fromEffect(UIO(reviews.find(_.id == args.id))))
   )
+
   println(api.render)
 
   implicit val system: ActorSystem                        = ActorSystem()
