@@ -9,20 +9,26 @@ lazy val root = (project in file("."))
     name := "federation-demo-caliban",
     libraryDependencies ++= commonDependencies
   )
-  .dependsOn(accounts, products, inventory, reviews)
+  .dependsOn(accounts, products, inventory, reviews, resources)
   .aggregate(accounts, products, inventory, reviews)
 
 lazy val accounts = (project in file("accounts"))
   .settings(libraryDependencies ++= commonDependencies)
+  .dependsOn(resources)
 
 lazy val products = (project in file("products"))
   .settings(libraryDependencies ++= commonDependencies)
+  .dependsOn(resources)
 
 lazy val inventory = (project in file("inventory"))
   .settings(libraryDependencies ++= commonDependencies)
+  .dependsOn(resources)
 
 lazy val reviews = (project in file("reviews"))
   .settings(libraryDependencies ++= commonDependencies)
+  .dependsOn(resources)
+
+lazy val resources = (project in file("resources"))
 
 lazy val commonDependencies = Seq(
   caliban,
