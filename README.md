@@ -3,6 +3,8 @@
 This repository reimplements Apollo's [federation-demo](https://github.com/apollographql/federation-demo) using Scala
 and Caliban.
 
+
+
 ## Requirements
 
 - sbt > 1.x
@@ -10,15 +12,20 @@ and Caliban.
 
 ## Setup and Run
 
-1. Run [AccountsServer](accounts/src/main/scala/com/williamhaw/gql_caliban/accounts/AccountsServer.scala),
-   [InventoryServer](inventory/src/main/scala/com/williamhaw/gql_caliban/inventory/InventoryServer.scala),
-   [ProductsServer](products/src/main/scala/com/williamhaw/gql_caliban/products/ProductsServer.scala) and
-   [ReviewsServer](reviews/src/main/scala/com/williamhaw/gql_caliban/reviews/ReviewsServer.scala)
-
-   Currently I run them using Intellij.
-2. `npm install`
-3. `node gateway.js`
-4. Navigate to http://localhost:4000 in your preferred browser.
+1. Run all servers by starting the sbt shell:
+   ```bash
+    > sbt
+   ```
+2. Inside the sbt shell, run:
+   ```
+   ...
+   [info] started sbt server
+   sbt:federation-demo-caliban> run AllServers
+   ```
+3. `npm install`
+4. `node gateway.js`
+5. Navigate to http://localhost:4000 in your preferred browser.
+6. Close both gateway and services by hitting `Ctrl-C`.
 
 ## Example Queries
 
@@ -28,6 +35,9 @@ query ExampleQuery {
     id
     name
     username
+    reviews {
+      body
+    }
   }
   topProducts(first: 3) {
     upc
@@ -36,6 +46,9 @@ query ExampleQuery {
     weight
     inStock
     shippingEstimate
+    reviews {
+      body
+    }
   }
 }
 ```
