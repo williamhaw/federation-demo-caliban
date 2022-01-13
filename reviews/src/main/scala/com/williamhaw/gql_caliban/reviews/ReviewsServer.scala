@@ -97,7 +97,7 @@ object ReviewsServer extends App {
             User(
               u.id,
               None,
-              reviews.filter(_.author.map(_.id == u.id).isDefined).map(r => Review(r.id, r.body, None, None))
+              reviews.filter(_.author.exists(_.id.equals(u.id))).map(r => Review(r.id, r.body, None, None))
             )
           }
         )
@@ -106,11 +106,11 @@ object ReviewsServer extends App {
     EntityResolver.from[ProductArgs](args =>
       ZQuery.fromEffect(
         UIO.succeed(
-          if (reviews.exists(_.product.map(_.upc == args.upc).isDefined))
+          if (reviews.exists(_.product.exists(_.upc == args.upc)))
             Some(
               Product(
                 args.upc,
-                reviews.filter(_.product.map(_.upc == args.upc).isDefined).map(r => Review(r.id, r.body, None, None))
+                reviews.filter(_.product.exists(_.upc == args.upc)).map(r => Review(r.id, r.body, None, None))
               )
             )
           else
