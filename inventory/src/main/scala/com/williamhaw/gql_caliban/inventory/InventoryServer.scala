@@ -30,18 +30,20 @@ object InventoryServer extends App {
     Product("3", None, None, inStock = Some(true), None)
   )
 
-  case class ProductArgs(upc: String)
+  case class ProductArgs(upc: String, price: Option[Int], weight: Option[Int])
 
   val api = graphQL(RootResolver()) @@ federated(
     EntityResolver.from[ProductArgs](args =>
-      ZQuery.fromEffect(UIO(inventory.find(_.upc == args.upc).map { i =>
+      ZQuery.fromEffect(UIO(inventory.find(_.upc == args.upc)
+        .map { i =>
         // free for expensive items
-        if (i.price.forall(_ > 1000))
+        if (args.price.forall(_ > 1000))
           i.copy(shippingEstimate = Some(0))
         else
           // estimate is based on weight
-          i.copy(shippingEstimate = Some((i.weight.getOrElse(0) * 0.5).toInt))
-      }))
+          i.copy(shippingEstimate = Some((args.weight.getOrElse(0) * 0.5).toInt))
+      }
+      ))
     )
   )
 
