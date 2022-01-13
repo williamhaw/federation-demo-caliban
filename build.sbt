@@ -27,5 +27,6 @@ lazy val commonDependencies = Seq(
   calibanFederation,
   calibanAkkaHttp,
   calibanPlay,
+  slf4j,
   scalaTest % Test
 )
