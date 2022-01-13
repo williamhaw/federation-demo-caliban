@@ -6,8 +6,10 @@ ThisBuild / organizationName := "gql-caliban"
 
 lazy val root = (project in file("."))
   .settings(
-    name := "federation-demo-caliban"
+    name := "federation-demo-caliban",
+    libraryDependencies ++= commonDependencies
   )
+  .dependsOn(accounts, products, inventory, reviews)
   .aggregate(accounts, products, inventory, reviews)
 
 lazy val accounts = (project in file("accounts"))
