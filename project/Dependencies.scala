@@ -12,5 +12,5 @@ object Dependencies {
 }
 
 object Versions {
-  val CalibanVersion = "1.3.1"
+  val CalibanVersion = "1.3.2"
 }
