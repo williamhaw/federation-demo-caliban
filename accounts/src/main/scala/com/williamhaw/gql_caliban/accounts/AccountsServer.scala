@@ -1,18 +1,21 @@
 package com.williamhaw.gql_caliban.accounts
 
 import akka.actor.ActorSystem
-import akka.http.scaladsl.Http
+import akka.http.scaladsl.server.Directives._
+import caliban.GraphQL.graphQL
+import caliban.federation._
+import caliban.{PlayAdapter, RootResolver}
+import play.api.Mode
+import play.api.mvc.akkahttp.AkkaHttpHandler
+import play.api.routing._
+import play.api.routing.sird._
+import play.core.server.{AkkaHttpServer, ServerConfig}
+import zio.query.ZQuery
+import zio.{Runtime, UIO}
 
 import java.util.UUID
-import caliban.federation._
-import caliban.GraphQL.graphQL
-import caliban.{AkkaHttpAdapter, RootResolver}
-import akka.http.scaladsl.server.Directives._
-import zio.{Runtime, UIO}
-import sttp.tapir.json.play._
-import zio.query.ZQuery
-
 import scala.concurrent.ExecutionContextExecutor
+import scala.io.StdIn.readLine
 
 object AccountsServer extends App {
 
@@ -44,11 +47,14 @@ object AccountsServer extends App {
 
   val interpreter = runtime.unsafeRun(api.interpreter)
 
-  val route =
-    path("graphql") {
-      // Point browser to http://localhost:4001/graphql for GraphQL Playground
-      getFromResource("graphql-playground.html")
-    } ~ path("graphql") {
+  val server = AkkaHttpServer.fromRouterWithComponents(
+    ServerConfig(
+      mode = Mode.Dev,
+      port = Some(4001),
+      address = "localhost"
+    )
+  ) { _ =>
+    Router.from {
       /*
        curl -X POST \
        http://localhost:4001/graphql \
@@ -58,8 +64,16 @@ object AccountsServer extends App {
        "query": "query { me { id, name, username }}"
        }'
        */
-      AkkaHttpAdapter.makeHttpService(interpreter)
-    }
+      case req @ POST(p"/graphql") => PlayAdapter.makeHttpService(interpreter).apply(req)
+      // Point browser to http://localhost:4001/graphql for GraphQL Playground
+      case _ @GET(p"/graphql") =>
+        AkkaHttpHandler {
+          getFromResource("graphql-playground.html")
+        }
+    }.routes
+  }
 
-  Http().newServerAt("localhost", 4001).bind(route)
+  println("Server online at http://localhost:4001/graphql/\nPress RETURN to stop...")
+  readLine()
+  server.stop()
 }
