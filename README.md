@@ -3,7 +3,13 @@
 This repository reimplements Apollo's [federation-demo](https://github.com/apollographql/federation-demo) using Scala
 and Caliban.
 
-
+## Contents
+| Service   | Api                                                                                              | Server                                                                                                 |
+|-----------|--------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------|
+| Accounts  | [AccountsApi](accounts/src/main/scala/com/williamhaw/gql_caliban/accounts/AccountsApi.scala)     | [AccountsServer](accounts/src/main/scala/com/williamhaw/gql_caliban/accounts/AccountsServer.scala)     |
+| Reviews   | [ReviewsApi]( reviews/src/main/scala/com/williamhaw/gql_caliban/reviews/ReviewsApi.scala)        | [ReviewsServer](reviews/src/main/scala/com/williamhaw/gql_caliban/reviews/ReviewsServer.scala)         |
+| Products  | [ProductsApi](products/src/main/scala/com/williamhaw/gql_caliban/products/ProductsApi.scala)     | [ProductsServer](products/src/main/scala/com/williamhaw/gql_caliban/products/ProductsServer.scala)     |
+| Inventory | [InventoryApi](inventory/src/main/scala/com/williamhaw/gql_caliban/inventory/InventoryApi.scala) | [InventoryServer](inventory/src/main/scala/com/williamhaw/gql_caliban/inventory/InventoryServer.scala) |
 
 ## Requirements
 
@@ -22,10 +28,16 @@ and Caliban.
    [info] started sbt server
    sbt:federation-demo-caliban> run AllServers
    ```
-3. `npm install`
-4. `node gateway.js`
-5. Navigate to http://localhost:4000 in your preferred browser.
-6. Close both gateway and services by hitting `Ctrl-C`.
+3. In the repository root, run
+   ```bash
+   > npm install
+   ```
+4. Then run
+   ```bash
+   > node gateway.js
+   ```
+6. Navigate to http://localhost:4000 in your preferred browser.
+7. Close both gateway and services by hitting `Ctrl-C`.
 
 ## Example Queries
 
