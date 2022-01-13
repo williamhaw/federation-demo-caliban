@@ -8,6 +8,7 @@ import sttp.tapir.json.play._
 import zio.Runtime
 
 import scala.concurrent.ExecutionContextExecutor
+import scala.util.{Failure, Success}
 
 object ReviewsServer extends App {
 
@@ -27,6 +28,16 @@ object ReviewsServer extends App {
       AkkaHttpAdapter.makeHttpService(interpreter)
     }
 
-  Http().newServerAt("localhost", 4002).bind(route)
+  Http()
+    .newServerAt("localhost", 4002)
+    .bind(route)
+    .onComplete {
+      case Success(binding) =>
+        val address = binding.localAddress
+        system.log.info("🚀 Server ready at http://{}:{}/", address.getHostString, address.getPort)
+      case Failure(ex) =>
+        system.log.error("Failed to bind HTTP endpoint, terminating system", ex)
+        system.terminate()
+    }
 
 }

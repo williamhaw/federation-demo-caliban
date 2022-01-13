@@ -49,7 +49,7 @@ object AccountsServer extends App {
     }.routes
   }
 
-  println("Server online at http://localhost:4001/graphql/\nPress RETURN to stop...")
+  println("🚀 Server ready at http://localhost:4001/graphql/\nPress RETURN to stop...")
   readLine()
   server.stop()
 }
