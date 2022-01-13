@@ -3,12 +3,12 @@
 This repository reimplements Apollo's [federation-demo](https://github.com/apollographql/federation-demo) using Scala
 and Caliban.
 
-# Requirements
+## Requirements
 
 - sbt > 1.x
 - recent version of npm and node
 
-# Setup and Run
+## Setup and Run
 
 1. Run [AccountsServer](accounts/src/main/scala/com/williamhaw/gql_caliban/accounts/AccountsServer.scala),
    [InventoryServer](inventory/src/main/scala/com/williamhaw/gql_caliban/inventory/InventoryServer.scala),
@@ -20,7 +20,7 @@ and Caliban.
 3. `node gateway.js`
 4. Navigate to http://localhost:4000 in your preferred browser.
 
-# Example Queries
+## Example Queries
 
 ```
 query ExampleQuery {
@@ -39,3 +39,8 @@ query ExampleQuery {
   }
 }
 ```
+
+## Notes
+
+- AccountsServer uses Play to serve GraphQL Playground and run the GQL interpreter. The other servers use Akka HTTP
+  directly.
