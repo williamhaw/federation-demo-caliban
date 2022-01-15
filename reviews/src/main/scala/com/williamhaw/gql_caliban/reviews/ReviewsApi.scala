@@ -3,8 +3,6 @@ package com.williamhaw.gql_caliban.reviews
 import caliban.GraphQL.graphQL
 import caliban.RootResolver
 import caliban.federation._
-import caliban.schema.ArgBuilder
-import zio.UIO
 import zio.query.ZQuery
 
 import java.util.UUID
@@ -16,17 +14,21 @@ object ReviewsApi {
       id: UUID,
       body: Option[String],
       @GQLProvides("username")
-      author: Option[User],
-      product: Option[Product]
+      author: ZQuery[Any, Nothing, Option[User]],
+      product: ZQuery[Any, Nothing, Option[Product]]
   )
 
   @GQLKey("id")
   @GQLExtend
-  case class User(@GQLExternal id: UUID, @GQLExternal username: Option[String], reviews: Seq[Review])
+  case class User(
+      @GQLExternal id: UUID,
+      @GQLExternal username: Option[String],
+      reviews: ZQuery[Any, Nothing, Seq[Review]]
+  )
 
   @GQLKey("upc")
   @GQLExtend
-  case class Product(@GQLExternal upc: String, reviews: Seq[Review])
+  case class Product(@GQLExternal upc: String, reviews: ZQuery[Any, Nothing, Seq[Review]])
 
   case class ReviewInternal(
       id: UUID,
@@ -34,12 +36,12 @@ object ReviewsApi {
       author: Option[UserInternal],
       product: Option[ProductInternal]
   )
-  case class UserInternal(id: UUID)
+  case class UserInternal(id: UUID, username: Option[String])
   case class ProductInternal(upc: String)
 
   val users = Seq(
-    UserInternal(UUID.fromString("da02636a-a240-4607-bf63-85b4f76ec6f1")),
-    UserInternal(UUID.fromString("ad8f41df-c5d2-4a46-91a7-f637f9a08060"))
+    UserInternal(UUID.fromString("da02636a-a240-4607-bf63-85b4f76ec6f1"), Some("@ada")),
+    UserInternal(UUID.fromString("ad8f41df-c5d2-4a46-91a7-f637f9a08060"), Some("@complete"))
   )
 
   val reviews = Seq(
@@ -69,50 +71,31 @@ object ReviewsApi {
     )
   )
 
+  def getReviewsForUser(userId: UUID): Seq[Review] = reviews.filter(_.author.exists(_.id == userId)).map { r =>
+    Review(r.id, r.body, userQuery(r.author), productQuery(r.product))
+  }
+
+  def getReviewsForProduct(upc: String): Seq[Review] = reviews.filter(_.product.exists(_.upc == upc)).map { r =>
+    Review(r.id, r.body, userQuery(r.author), productQuery(r.product))
+  }
+
+  val userQuery: Option[UserInternal] => ZQuery[Any, Nothing, Option[User]] = (ui: Option[UserInternal]) =>
+    ZQuery.foreach(ui)(u => ZQuery.succeed(User(u.id, u.username, ZQuery.succeed(getReviewsForUser(u.id)))))
+  val productQuery: Option[ProductInternal] => ZQuery[Any, Nothing, Option[Product]] = (pi: Option[ProductInternal]) =>
+    ZQuery.foreach(pi)(p => ZQuery.succeed(Product(p.upc, ZQuery.succeed(getReviewsForProduct(p.upc)))))
+
   case class ReviewArgs(id: UUID)
-  case class ReviewResolvedArgs(id: UUID, author: User, product: Product)
-  case class UserArgs(id: UUID)
+  case class UserArgs(id: UUID, username: Option[String])
   case class ProductArgs(upc: String)
 
-  implicit lazy val userArgBuilder: ArgBuilder[User]       = ArgBuilder.gen[User]
-  implicit lazy val productArgBuilder: ArgBuilder[Product] = ArgBuilder.gen[Product]
-
-  case class Queries(review: ReviewArgs => Option[Review])
-
   val api = graphQL(RootResolver()) @@ federated(
-    EntityResolver.from[ReviewResolvedArgs](args =>
-      ZQuery.fromEffect(UIO(reviews.find(_.id == args.id).map { r =>
-        Review(r.id, r.body, Some(args.author), Some(args.product))
-      }))
+    EntityResolver.from[ReviewArgs](args =>
+      ZQuery.succeed(reviews.find(_.id == args.id).map { r =>
+        Review(r.id, r.body, userQuery(r.author), productQuery(r.product))
+      })
     ),
-    EntityResolver.from[UserArgs](args =>
-      ZQuery.fromEffect(
-        UIO.succeed(
-          users.find(_.id == args.id).map { u =>
-            User(
-              u.id,
-              None,
-              reviews.filter(_.author.exists(_.id.equals(u.id))).map(r => Review(r.id, r.body, None, None))
-            )
-          }
-        )
-      )
-    ),
-    EntityResolver.from[ProductArgs](args =>
-      ZQuery.fromEffect(
-        UIO.succeed(
-          if (reviews.exists(_.product.exists(_.upc == args.upc)))
-            Some(
-              Product(
-                args.upc,
-                reviews.filter(_.product.exists(_.upc == args.upc)).map(r => Review(r.id, r.body, None, None))
-              )
-            )
-          else
-            None
-        )
-      )
-    )
+    EntityResolver.from[UserArgs](args => userQuery(Some(UserInternal(args.id, args.username)))),
+    EntityResolver.from[ProductArgs](args => productQuery(Some(ProductInternal(args.upc))))
   )
 
 }
