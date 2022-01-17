@@ -4,6 +4,7 @@ This repository reimplements Apollo's [federation-demo](https://github.com/apoll
 and Caliban.
 
 ## Contents
+
 | Service   | Api                                                                                              | Server                                                                                                 |
 |-----------|--------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------|
 | Accounts  | [AccountsApi](accounts/src/main/scala/com/williamhaw/gql_caliban/accounts/AccountsApi.scala)     | [AccountsServer](accounts/src/main/scala/com/williamhaw/gql_caliban/accounts/AccountsServer.scala)     |
@@ -34,7 +35,7 @@ and Caliban.
    ```
 4. Then run
    ```bash
-   > node gateway.js
+   > npm run start-gateway
    ```
 6. Navigate to http://localhost:4000 in your preferred browser.
 7. Close both gateway and services by hitting `Ctrl-C`.
@@ -49,6 +50,9 @@ query ExampleQuery {
     username
     reviews {
       body
+      product {
+        name
+      }
     }
   }
   topProducts(first: 3) {
@@ -60,6 +64,10 @@ query ExampleQuery {
     shippingEstimate
     reviews {
       body
+      author {
+        name
+        username
+      }
     }
   }
 }
