@@ -3,6 +3,7 @@ package com.williamhaw.gql_caliban.reviews
 import caliban.GraphQL.graphQL
 import caliban.RootResolver
 import caliban.federation._
+import caliban.federation.tracing.ApolloFederatedTracing
 import zio.query.ZQuery
 
 import java.util.UUID
@@ -103,6 +104,6 @@ object ReviewsApi {
     ),
     EntityResolver.from[UserArgs](args => userQuery(Some(args.id))),
     EntityResolver.from[ProductArgs](args => productQuery(Some(ProductInternal(args.upc))))
-  )
+  )  @@ ApolloFederatedTracing.wrapper
 
 }

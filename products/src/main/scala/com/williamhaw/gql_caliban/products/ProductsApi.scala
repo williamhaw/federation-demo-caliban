@@ -3,6 +3,7 @@ package com.williamhaw.gql_caliban.products
 import caliban.GraphQL.graphQL
 import caliban.RootResolver
 import caliban.federation._
+import caliban.federation.tracing.ApolloFederatedTracing
 import zio.UIO
 import zio.query.ZQuery
 
@@ -28,6 +29,6 @@ object ProductsApi {
 
   val api = graphQL(RootResolver(queries)) @@ federated(
     EntityResolver.from[ProductArgs](args => ZQuery.fromEffect(UIO(products.find(_.upc == args.upc))))
-  )
+  ) @@ ApolloFederatedTracing.wrapper
 
 }

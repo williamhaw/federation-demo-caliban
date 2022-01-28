@@ -3,6 +3,7 @@ package com.williamhaw.gql_caliban.inventory
 import caliban.GraphQL.graphQL
 import caliban.RootResolver
 import caliban.federation._
+import caliban.federation.tracing.ApolloFederatedTracing
 import zio.UIO
 import zio.query.ZQuery
 
@@ -51,6 +52,6 @@ object InventoryApi {
         )
       )
     )
-  )
+  ) @@ ApolloFederatedTracing.wrapper
 
 }
