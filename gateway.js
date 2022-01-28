@@ -1,5 +1,7 @@
+require("./opentelemetry");
 const { ApolloServer } = require("apollo-server");
 const { ApolloGateway } = require("@apollo/gateway");
+const { ApolloServerPluginInlineTrace } = require("apollo-server-core");
 
 const gateway = new ApolloGateway({
     // This entire `serviceList` is optional when running in managed federation
@@ -28,6 +30,8 @@ const gateway = new ApolloGateway({
         engine: false,
 
         subscriptions: false,
+
+        plugins: [ApolloServerPluginInlineTrace()],
     });
 
     server.listen().then(({ url }) => {
